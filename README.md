@@ -1,1 +1,1 @@
-# kws-rubikpi3
+# Key Word Spotting (KWS) live streaming demo on RUBIK Pi 3 development board
