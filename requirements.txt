@@ -1,0 +1,17 @@
+numpy==2.5.2
+scipy
+sounddevice
+soundfile
+SpeechPy==2.4
+tensorflow==2.19.0
+keras>=3.5.0
+tf2onnx==1.16.1
+onnx==1.17.0
+onnxruntime
+edge-tts
+librosa
+soundfile
+praat-parselmouth
+numpy scipy
+tqdm
+pydub
