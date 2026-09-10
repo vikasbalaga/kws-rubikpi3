@@ -504,19 +504,21 @@ def run_inference(
     # ONNX input normally needs [1, 650]
     input_data = input_data.reshape(1, -1)
 
+    start = time.perf_counter()
     outputs = session.run(
         [output_info.name],
         {
             input_info.name: input_data
         }
     )
-
+    inf_time = time.perf_counter() - start
+    inf_time = inf_time * 1_000_000
     output = outputs[0]
 
     # Remove batch dimension
     output = np.squeeze(output)
 
-    return output
+    return output, inf_time
 
 
 # ============================================================
@@ -664,7 +666,7 @@ def run_wav_48k(model_path,
 
     input_info, output_info = inspect_model(session)
 
-    output = run_inference(
+    output, inf_time = run_inference(
         session,
         input_info,
         output_info,
@@ -747,7 +749,7 @@ def run_wav(
 
     input_info, output_info = inspect_model(session)
 
-    output = run_inference(
+    output, inf_time = run_inference(
         session,
         input_info,
         output_info,
@@ -781,9 +783,22 @@ def run_live(
     inference_interval=0.25
 ):
     print("\nLoading ONNX model...")
+    
+    
+    providers = [
+        (
+            "QNNExecutionProvider",
+            {
+                "backend_type": "htp"
+            }
+        ),
+        "CPUExecutionProvider"
+    ]
+    
+    
     session = ort.InferenceSession(
         model_path,
-        providers=["CPUExecutionProvider"]
+        providers=providers
     )
     input_info, output_info = inspect_model(session)
 
@@ -884,7 +899,7 @@ def run_live(
             # ------------------------------------------------
 
             try:
-                output = run_inference(
+                output, inf_time = run_inference(
                     session,
                     input_info,
                     output_info,
@@ -929,6 +944,7 @@ def run_live(
                     end="",
                     flush=True
                 )
+                #print(f"inference time = {inf_time:.3f} us")
 
             if (
                 predicted_index == 0
